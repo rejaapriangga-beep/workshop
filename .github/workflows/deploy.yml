@@ -1,0 +1,27 @@
+name: Deploy to Production
+
+# Jalan otomatis setiap ada push (merge) ke branch main.
+# Membutuhkan GitHub Secrets berikut di Settings > Secrets and variables > Actions:
+#   SSH_HOST         - IP/hostname server production
+#   SSH_USER         - username SSH di server
+#   SSH_PRIVATE_KEY  - private key SSH (isi file .pem / id_ed25519, bukan path)
+#   SSH_PORT         - (opsional) port SSH, default 22
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            bash ~/workshop-repo/deploy.sh
