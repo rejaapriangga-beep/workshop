@@ -1,0 +1,578 @@
+<!DOCTYPE html><html lang="id"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Path Approval — Approval Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F6FB;--white:#FFFFFF;--text:#1A1F36;--text-muted:#6B7394;--border:#E2E6F0;--navy:#0F2A4A;--orange:#E85D1A;
+  --rd:#2E7D32;--ri:#E91E63;--pd:#1565C0;--pi:#6A1B9A;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);color:var(--text);}
+body{display:flex;flex-direction:column;}
+.page-shell{display:flex;flex-direction:column;flex:1;min-height:0;}
+
+/* ---- Header ---- */
+header{background:var(--navy);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 2px 12px rgba(15,42,74,0.25);z-index:50;}
+.header-left{display:flex;align-items:center;gap:12px;}
+.logo-box{width:30px;height:30px;background:var(--orange);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;}
+.logo-box svg{width:15px;height:15px;}
+.brand-sub{font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:0.12em;text-transform:uppercase;line-height:1;}
+.brand-title{font-size:14px;font-weight:700;color:#fff;line-height:1.3;}
+.header-right{display:flex;align-items:center;gap:6px;}
+.user-chip{font-size:11px;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.08);padding:5px 10px;border-radius:6px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hdr-link{font-size:11px;color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.08);padding:5px 10px;border-radius:6px;text-decoration:none;}
+.hdr-link:hover{background:rgba(255,255,255,0.15);}
+.logout-btn{font-size:11px;color:rgba(239,68,68,0.85);background:rgba(239,68,68,0.1);padding:5px 10px;border-radius:6px;border:1px solid rgba(239,68,68,0.25);cursor:pointer;font-family:inherit;}
+.logout-btn:hover{background:rgba(239,68,68,0.2);}
+
+/* ---- Batch bar ---- */
+.batch-bar{background:var(--white);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap;}
+.batch-label{font-size:12px;font-weight:700;color:var(--text-muted);white-space:nowrap;}
+.batch-select{padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;color:var(--text);background:var(--white);min-width:220px;}
+.btn{font-size:12px;font-weight:600;padding:7px 14px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--navy);font-family:inherit;white-space:nowrap;}
+.btn:hover{border-color:var(--orange);color:var(--orange);}
+.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy);}
+.btn-primary:hover{background:#0A1F38;color:#fff;}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+.summary-chips{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
+.chip{font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;white-space:nowrap;}
+.chip-pending{background:#FFF3E0;color:#E65100;}
+.chip-approved{background:#DCFCE7;color:#2E7D32;}
+.chip-rejected{background:#FFEBEE;color:#C62828;}
+
+/* ---- Legend ---- */
+.legend{display:flex;align-items:center;gap:14px;padding:7px 20px;background:var(--white);border-bottom:1px solid var(--border);font-size:11px;color:var(--text-muted);flex-wrap:wrap;flex-shrink:0;}
+.legend-item{display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.legend-note{font-size:10px;color:var(--text-muted);font-style:italic;margin-left:auto;}
+.legend-divider{width:1px;background:var(--border);height:16px;margin:0 4px;flex-shrink:0;}
+
+/* ---- Main layout ---- */
+.main-layout{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:200px;min-width:200px;background:var(--white);border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;}
+.sidebar-header{padding:12px 16px 8px;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);}
+.sidebar-item{padding:10px 16px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text-muted);border-left:3px solid transparent;transition:all 0.15s;line-height:1.4;border-bottom:1px solid var(--border);}
+.sidebar-item:hover{background:var(--bg);color:var(--text);border-left-color:#B0C4DE;}
+.sidebar-item.active{background:#FEF0E7;color:#E85D1A;border-left-color:#E85D1A;font-weight:700;}
+.sidebar-name{display:block;margin-bottom:5px;}
+.sidebar-counts{display:flex;gap:4px;flex-wrap:wrap;}
+.sidebar-chip{font-size:9px;font-weight:700;border-radius:9px;padding:1px 6px;white-space:nowrap;}
+.sidebar-chip.pending{background:#FFF3E0;color:#E65100;}
+.sidebar-chip.approved{background:#DCFCE7;color:#2E7D32;}
+.sidebar-chip.rejected{background:#FFEBEE;color:#C62828;}
+.sidebar-chip.notrack{background:#F3E8FF;color:#7C3AED;}
+.notrack-banner{background:#F3E8FF;color:#6D28D9;font-size:11px;font-weight:600;padding:8px 20px;border-bottom:1px solid #E9D5FF;}
+
+.grid-col{flex:1;overflow:auto;position:relative;}
+.grid-scroll-inner{position:relative;display:inline-block;min-width:100%;padding:60px 30px 30px 30px;}
+.grade-band{pointer-events:none;}
+
+.track-grid{position:relative;display:grid;grid-auto-rows:min-content;gap:56px 40px;align-items:start;z-index:2;}
+.track-label-cell{position:sticky;left:0;background:var(--bg);z-index:6;padding:8px 12px 8px 0;display:flex;align-items:center;}
+.track-label{font-family:"Syne",sans-serif;font-size:11px;font-weight:700;color:#0F2A4A;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:8px 12px;width:100%;line-height:1.3;}
+.grade-header-cell{text-align:center;padding:8px 4px;border-radius:6px;font-family:"Plus Jakarta Sans",sans-serif;font-size:13px;font-weight:700;color:#fff;position:sticky;top:0;z-index:7;}
+.grade-header-corner{position:sticky;left:0;top:0;z-index:8;background:var(--bg);}
+.grade-cell{display:flex;flex-direction:column;gap:28px;min-width:190px;}
+
+.node-card{width:190px;background:var(--white);border:1.5px solid #B0BEC5;border-radius:8px;padding:8px 10px;transition:all 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.07);position:relative;flex-shrink:0;cursor:pointer;}
+.node-card:hover{border-color:#E85D1A;box-shadow:0 2px 8px rgba(232,93,26,0.15);}
+.node-card.selected{border-color:#E85D1A;border-width:2.5px;background:#FDBA74;box-shadow:0 4px 18px rgba(232,93,26,0.4);}
+.node-title{font-size:12px;font-weight:700;line-height:1.3;margin-bottom:4px;}
+.node-card.selected .node-title,.node-card.selected .node-meta{color:#5C2E00;}
+.node-meta{font-size:10px;color:var(--text-muted);}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted);font-size:13px;}
+
+/* ---- Arrow overlay ---- */
+.arrow-svg{position:absolute;top:0;left:0;pointer-events:none;z-index:1;}
+
+/* ---- Decision buttons (di dalam kartu, pojok kanan bawah) ---- */
+.card-actions{position:absolute;bottom:6px;right:6px;display:flex;gap:4px;z-index:3;}
+.decision-btn{width:22px;height:22px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.2);color:#fff;flex-shrink:0;}
+.decision-btn.approve{background:#2E7D32;}
+.decision-btn.approve:hover{background:#256428;}
+.decision-btn.reject{background:#C62828;}
+.decision-btn.reject:hover{background:#A32020;}
+.decision-btn.active{outline:2px solid #fff;outline-offset:-2px;box-shadow:0 0 0 2px currentColor;}
+.decision-btn.dimmed{background:#B0B7C9 !important;box-shadow:none;}
+.decision-action-tag{position:absolute;font-size:8px;font-weight:800;padding:1px 5px;border-radius:4px;color:#fff;transform:translate(-50%,-50%);z-index:4;white-space:nowrap;}
+.tag-RD{background:var(--rd);}.tag-RI{background:var(--ri);}.tag-PD{background:var(--pd);}.tag-PI{background:var(--pi);}
+
+/* ---- Modal (upload) ---- */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,42,74,0.4);z-index:400;display:none;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:#fff;border-radius:12px;padding:24px;width:100%;max-width:420px;box-shadow:0 12px 40px rgba(0,0,0,0.2);}
+.modal-title{font-family:"Syne",sans-serif;font-size:17px;margin-bottom:16px;}
+.modal-box label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px;margin-top:12px;}
+.modal-box input[type=text],.modal-box input[type=file]{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;}
+.modal-actions{display:flex;gap:8px;margin-top:20px;}
+.modal-actions .btn{flex:1;text-align:center;}
+.hint{font-size:10px;color:var(--text-muted);margin-top:4px;}
+</style></head>
+<body>
+
+<div class="page-shell">
+<header>
+  <div class="header-left">
+    <div class="logo-box" onclick="window.location='index.html'"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+    <div><div class="brand-sub">KAI — Human Capital</div><div class="brand-title">Career Path Approval</div></div>
+  </div>
+  <div class="header-right">
+    <div class="user-chip" id="user-chip">—</div>
+    <a class="hdr-link" href="index.html">Approval Center</a>
+    <button class="logout-btn" onclick="doLogout()">Keluar</button>
+  </div>
+</header>
+
+<div class="batch-bar">
+  <span class="batch-label">📦 Batch:</span>
+  <select class="batch-select" id="batch-select" onchange="onBatchChange()"></select>
+  <button class="btn" id="upload-btn" onclick="openUploadModal()">＋ Upload Batch Baru</button>
+  <button class="btn" id="export-btn" onclick="exportCsv()" disabled>⬇ Export CSV Final</button>
+  <div class="summary-chips" id="summary-chips"></div>
+</div>
+
+<div class="legend">
+  <span style="font-weight:700;color:var(--text);margin-right:4px">Keterangan:</span>
+  <div class="legend-item"><svg width="14" height="14" style="flex-shrink:0"><rect x="0" y="0" width="14" height="14" rx="3" fill="#2E7D32"/></svg><span>Rotasi Direct (RD)</span></div>
+  <div class="legend-item"><svg width="14" height="14" style="flex-shrink:0"><rect x="0" y="0" width="14" height="14" rx="3" fill="#E91E63"/></svg><span>Rotasi Indirect (RI)</span></div>
+  <div class="legend-item"><svg width="32" height="10" style="flex-shrink:0"><defs><marker id="lg-pd" markerWidth="3" markerHeight="3" refX="2.5" refY="1.5" orient="auto"><path d="M0,0 L3,1.5 L0,3 Z" fill="#1565C0"/></marker></defs><line x1="0" y1="5" x2="28" y2="5" stroke="#1565C0" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#lg-pd)"/></svg><span>Promosi Direct (PD)</span></div>
+  <div class="legend-item"><svg width="32" height="10" style="flex-shrink:0"><defs><marker id="lg-pi" markerWidth="3" markerHeight="3" refX="2.5" refY="1.5" orient="auto"><path d="M0,0 L3,1.5 L0,3 Z" fill="#6A1B9A"/></marker></defs><line x1="0" y1="5" x2="28" y2="5" stroke="#6A1B9A" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#lg-pi)"/></svg><span>Promosi Indirect (PI)</span></div>
+  <div class="legend-divider"></div>
+  <div class="legend-note">Klik kartu jabatan untuk lihat jalur keluarnya, lalu klik ✓ / ✗ di atas kartu tujuan.</div>
+</div>
+
+<div class="main-layout">
+  <div class="sidebar" id="sidebar"><div class="sidebar-header">Job Family</div></div>
+  <div class="grid-col" id="grid-col"><div class="grid-scroll-inner"><div class="empty-state">Pilih atau upload batch untuk mulai review.</div></div></div>
+</div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal-overlay" id="upload-modal">
+  <div class="modal-box">
+    <div class="modal-title">Upload Batch Career Path (Draft V.1)</div>
+    <label>Nama Batch</label>
+    <input type="text" id="upload-batch-name" placeholder="Career Path V.1 - Agustus 2026">
+    <label>File Nodes (CSV)</label>
+    <input type="file" id="upload-nodes-file" accept=".csv">
+    <div class="hint">Kolom: id_jabatan, id_job_family, nama_job_family, id_sub_job_family, nama_sub_job_family, singkatan_jabatan, nama_jabatan, tingkat_jabatan, jenis_jabatan, masa, min_edu</div>
+    <label>File Jalur/Nexts (CSV)</label>
+    <input type="file" id="upload-nexts-file" accept=".csv">
+    <div class="hint">Kolom: from_job_id, to_job_id, action (RD/RI/PD/PI), lintas_job_fam, target_job_fam</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeUploadModal()">Batal</button>
+      <button class="btn btn-primary" id="upload-submit-btn" onclick="submitUpload()">Upload</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const token = sessionStorage.getItem('workshop_token');
+const userStr = sessionStorage.getItem('workshop_user');
+if (!token || !userStr) window.location.replace('login.html');
+const user = JSON.parse(userStr || '{}');
+document.getElementById('user-chip').textContent = (user.nama || user.email) + ' — ' + user.role;
+const canApprove = ['hc_approver', 'admin'].includes(user.role);
+
+function doLogout() { sessionStorage.clear(); window.location.replace('login.html'); }
+
+async function api(path, opts = {}) {
+  opts.headers = Object.assign({}, opts.headers, { 'Authorization': 'Bearer ' + token });
+  const res = await fetch(path, opts);
+  if (res.status === 401) { doLogout(); throw new Error('Unauthorized'); }
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'Request gagal');
+  return json;
+}
+
+const ACTION_COLOR = { RD: '#2E7D32', RI: '#E91E63', PD: '#1565C0', PI: '#6A1B9A' };
+const GRADE_COLORS = {"1":"#9E9E9E","2":"#9E9E9E","3":"#9E9E9E","4":"#212121","5":"#212121","6":"#0D47A1","7":"#0D47A1","8":"#0D47A1","9":"#1976D2","10":"#1976D2","11":"#1976D2","12":"#2E7D32","13":"#2E7D32","14":"#2E7D32","15":"#E65100","16":"#E65100","17":"#C62828","18":"#C62828","19":"#6A1B9A","20":"#6A1B9A"};
+const GRADE_BG = {"1":"#F5F5F5","2":"#F5F5F5","3":"#F0F0F0","4":"#F0F0F0","5":"#EBEBEB","6":"#E3EAF8","7":"#D6E4F7","8":"#C9DDF5","9":"#E3F0FC","10":"#D6E9FB","11":"#C9E2FA","12":"#E8F5E9","13":"#DCEEDE","14":"#CFE8D1","15":"#FFF3E0","16":"#FEEBD6","17":"#FFEBEE","18":"#FDDEDE","19":"#F3E5F5","20":"#EDE0F5"};
+
+let BATCHES = [];
+let CURRENT_BATCH_ID = null;
+let ALL_NODES = [];
+let ALL_LINKS = [];
+let JOB_FAMILIES = [];
+let currentFamily = null;
+let selectedNodeId = null;
+let NODE_INFO = {};
+
+async function loadBatches() {
+  const json = await api('/api/cp/batches');
+  BATCHES = json.batches;
+  const sel = document.getElementById('batch-select');
+  sel.innerHTML = BATCHES.length
+    ? BATCHES.map(b => `<option value="${b.id}">${b.batch_name} (${b.total_count} jalur)</option>`).join('')
+    : '<option value="">Belum ada batch</option>';
+  if (BATCHES.length > 0) {
+    CURRENT_BATCH_ID = BATCHES[0].id;
+    sel.value = CURRENT_BATCH_ID;
+    await loadBatchData();
+  } else {
+    document.getElementById('grid-col').innerHTML = '<div class="grid-scroll-inner"><div class="empty-state">Belum ada batch. Upload batch baru untuk mulai.</div></div>';
+  }
+}
+
+function onBatchChange() {
+  CURRENT_BATCH_ID = document.getElementById('batch-select').value;
+  loadBatchData();
+}
+
+function updateSummary() {
+  const b = BATCHES.find(x => String(x.id) === String(CURRENT_BATCH_ID));
+  const chipBox = document.getElementById('summary-chips');
+  const exportBtn = document.getElementById('export-btn');
+  if (!b) { chipBox.innerHTML = ''; exportBtn.disabled = true; return; }
+  chipBox.innerHTML = `
+    <span class="chip chip-pending">${b.pending_count} Pending</span>
+    <span class="chip chip-approved">${b.approved_count} Approved</span>
+    <span class="chip chip-rejected">${b.rejected_count} Rejected</span>
+  `;
+  exportBtn.disabled = Number(b.approved_count) === 0;
+}
+
+async function loadBatchData() {
+  if (!CURRENT_BATCH_ID) return;
+  document.getElementById('grid-col').innerHTML = '<div class="grid-scroll-inner"><div class="empty-state">Memuat data...</div></div>';
+  const [nodesJson, linksJson] = await Promise.all([
+    api('/api/cp/batches/' + CURRENT_BATCH_ID + '/nodes'),
+    api('/api/cp/batches/' + CURRENT_BATCH_ID + '/links'),
+  ]);
+  ALL_NODES = nodesJson.nodes;
+  ALL_LINKS = linksJson.links;
+  NODE_INFO = {};
+  ALL_NODES.forEach(n => { NODE_INFO[n.id_jabatan] = n; });
+  JOB_FAMILIES = [...new Set(ALL_NODES.map(n => n.nama_job_family || 'Tanpa Job Family'))].sort();
+  currentFamily = JOB_FAMILIES[0] || null;
+  updateSummary();
+  renderSidebar();
+  renderGrid();
+}
+
+function renderSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  let html = '<div class="sidebar-header">Job Family</div>';
+  JOB_FAMILIES.forEach(fam => {
+    const nodeIdsInFam = new Set(ALL_NODES.filter(n => (n.nama_job_family || 'Tanpa Job Family') === fam).map(n => n.id_jabatan));
+    const linksInFam = ALL_LINKS.filter(l => nodeIdsInFam.has(l.from_job_id) || nodeIdsInFam.has(l.to_job_id));
+    const pending = linksInFam.filter(l => l.status === 'pending').length;
+    const approved = linksInFam.filter(l => l.status === 'approved').length;
+    const rejected = linksInFam.filter(l => l.status === 'rejected').length;
+    const notrackCount = ALL_NODES.filter(n => (n.nama_job_family || 'Tanpa Job Family') === fam && !n.nama_sub_job_family).length;
+    html += `<div class="sidebar-item ${fam === currentFamily ? 'active' : ''}" onclick="selectFamily('${fam.replace(/'/g, "\\'")}')">
+      <span class="sidebar-name">${fam}</span>
+      <div class="sidebar-counts">
+        <span class="sidebar-chip pending">${pending} pending</span>
+        <span class="sidebar-chip approved">${approved} approved</span>
+        <span class="sidebar-chip rejected">${rejected} rejected</span>
+        ${notrackCount > 0 ? `<span class="sidebar-chip notrack">⚠ ${notrackCount} tanpa track</span>` : ''}
+      </div>
+    </div>`;
+  });
+  sidebar.innerHTML = html;
+}
+
+function selectFamily(fam) {
+  currentFamily = fam;
+  selectedNodeId = null;
+  renderSidebar();
+  renderGrid();
+}
+
+function renderGrid() {
+  const gridCol = document.getElementById('grid-col');
+  if (!currentFamily) { gridCol.innerHTML = '<div class="grid-scroll-inner"><div class="empty-state">Tidak ada data.</div></div>'; return; }
+  const nodesInFam = ALL_NODES.filter(n => (n.nama_job_family || 'Tanpa Job Family') === currentFamily);
+  if (nodesInFam.length === 0) {
+    gridCol.innerHTML = '<div class="grid-scroll-inner"><div class="empty-state">Tidak ada jabatan di job family ini.</div></div>';
+    return;
+  }
+
+  const grades = [...new Set(nodesInFam.map(n => n.tingkat_jabatan))].sort((a, b) => (a ?? 0) - (b ?? 0));
+  const trackKeys = [...new Set(nodesInFam.map(n => n.nama_sub_job_family || '(Tanpa Track)'))].sort();
+  const gridTemplateCols = `170px repeat(${grades.length}, 190px)`;
+
+  let html = `<div class="track-grid" id="track-grid" style="grid-template-columns:${gridTemplateCols}">`;
+  html += `<div class="grade-header-corner"></div>`;
+  grades.forEach(g => {
+    const gc = GRADE_COLORS[g] || '#9E9E9E';
+    html += `<div class="grade-header-cell" style="background:${gc}">Grade ${g ?? '—'}</div>`;
+  });
+
+  trackKeys.forEach(track => {
+    html += `<div class="track-label-cell"><div class="track-label">${track}</div></div>`;
+    grades.forEach(g => {
+      const cellNodes = nodesInFam.filter(n => (n.nama_sub_job_family || '(Tanpa Track)') === track && n.tingkat_jabatan === g);
+      html += `<div class="grade-cell">`;
+      cellNodes.forEach(n => {
+        html += `
+          <div class="node-card ${n.id_jabatan === selectedNodeId ? 'selected' : ''}" id="node-${cssId(n.id_jabatan)}" data-jabatan="${n.id_jabatan}" onclick="selectNode('${String(n.id_jabatan).replace(/'/g, "\\'")}')">
+            <div class="node-title">${n.nama_jabatan}</div>
+            <div class="node-meta">${n.jenis_jabatan || ''}</div>
+            <div class="card-actions" id="actions-${cssId(n.id_jabatan)}"></div>
+          </div>`;
+      });
+      html += `</div>`;
+    });
+  });
+  html += '</div>';
+  const notrackCount = nodesInFam.filter(n => !n.nama_sub_job_family).length;
+  const banner = notrackCount > 0
+    ? `<div class="notrack-banner">⚠ ${notrackCount} jabatan di "${currentFamily}" tidak punya Sub Job Family (Track) di data sumber — ditampilkan di baris "(Tanpa Track)". Sebaiknya dilengkapi datanya di sumber (Darwin Box/career_db) untuk pengelompokan yang rapi.</div>`
+    : '';
+  gridCol.innerHTML = `${banner}<div class="grid-scroll-inner" id="scroll-inner">${html}</div>`;
+
+  requestAnimationFrame(() => requestAnimationFrame(() => { drawGradeBands(grades); drawArrows(); }));
+}
+
+function drawGradeBands(grades) {
+  const container = document.getElementById('scroll-inner');
+  const trackGrid = document.getElementById('track-grid');
+  if (!container || !trackGrid) return;
+  document.querySelectorAll('.grade-band').forEach(el => el.remove());
+
+  const containerRect = container.getBoundingClientRect();
+  const gridRect = trackGrid.getBoundingClientRect();
+  const topY = gridRect.top - containerRect.top;
+  const bottomY = gridRect.bottom - containerRect.top;
+  const headerCells = trackGrid.querySelectorAll('.grade-header-cell');
+
+  let bandsHtml = '';
+  headerCells.forEach((cell, i) => {
+    const r = cell.getBoundingClientRect();
+    const left = r.left - containerRect.left;
+    const width = r.width;
+    const color = GRADE_BG[grades[i]] || '#F5F5F5';
+    bandsHtml += `<div class="grade-band" style="position:absolute;left:${left}px;top:${topY}px;width:${width}px;height:${bottomY - topY}px;background:${color};z-index:0;border-radius:6px;"></div>`;
+  });
+  container.insertAdjacentHTML('afterbegin', bandsHtml);
+}
+
+function cssId(idJabatan) {
+  return String(idJabatan).replace(/[^a-zA-Z0-9_-]/g, '_');
+}
+
+function selectNode(idJabatan) {
+  selectedNodeId = (selectedNodeId === idJabatan) ? null : idJabatan;
+  document.querySelectorAll('.node-card').forEach(el => {
+    el.classList.toggle('selected', el.dataset.jabatan === selectedNodeId);
+  });
+  drawArrows();
+}
+
+function drawArrows() {
+  const container = document.getElementById('scroll-inner');
+  const trackGrid = document.getElementById('track-grid');
+  if (!container || !trackGrid) return;
+
+  const oldSvg = document.getElementById('arrow-svg');
+  if (oldSvg) oldSvg.remove();
+  document.querySelectorAll('.decision-action-tag').forEach(el => el.remove());
+  document.querySelectorAll('.card-actions').forEach(el => { el.innerHTML = ''; });
+
+  if (!selectedNodeId) return;
+
+  const containerRect = container.getBoundingClientRect();
+  const width = container.scrollWidth;
+  const height = container.scrollHeight;
+
+  const idJabatanInFam = new Set(
+    ALL_NODES.filter(n => (n.nama_job_family || 'Tanpa Job Family') === currentFamily).map(n => n.id_jabatan)
+  );
+  const relevantLinks = ALL_LINKS.filter(l => l.from_job_id === selectedNodeId && idJabatanInFam.has(l.to_job_id));
+  if (relevantLinks.length === 0) return;
+
+  // --- Batas kolom (Grade), dari header cell ---
+  const headerCells = [...trackGrid.querySelectorAll('.grade-header-cell')];
+  const gradesInOrder = [...new Set(ALL_NODES.filter(n => (n.nama_job_family || 'Tanpa Job Family') === currentFamily).map(n => n.tingkat_jabatan))].sort((a, b) => (a ?? 0) - (b ?? 0));
+  const colBounds = headerCells.map(cell => {
+    const r = cell.getBoundingClientRect();
+    return { left: r.left - containerRect.left, right: r.right - containerRect.left };
+  });
+  const colIndexOfGrade = {};
+  gradesInOrder.forEach((g, i) => { colIndexOfGrade[g] = i; });
+
+  // --- Batas baris (Track), dari posisi kartu asli ---
+  const trackKeysInOrder = [...new Set(ALL_NODES.filter(n => (n.nama_job_family || 'Tanpa Job Family') === currentFamily).map(n => n.nama_sub_job_family || '(Tanpa Track)'))].sort();
+  const rowBounds = {};
+  trackKeysInOrder.forEach(t => { rowBounds[t] = { top: Infinity, bottom: -Infinity }; });
+  document.querySelectorAll('.node-card').forEach(el => {
+    const info = NODE_INFO[el.dataset.jabatan];
+    if (!info || (info.nama_job_family || 'Tanpa Job Family') !== currentFamily) return;
+    const track = info.nama_sub_job_family || '(Tanpa Track)';
+    const r = el.getBoundingClientRect();
+    const top = r.top - containerRect.top, bottom = r.bottom - containerRect.top;
+    if (top < rowBounds[track].top) rowBounds[track].top = top;
+    if (bottom > rowBounds[track].bottom) rowBounds[track].bottom = bottom;
+  });
+  const gridTopY = trackGrid.getBoundingClientRect().top - containerRect.top;
+  function rowGapAboveY(track) {
+    const idx = trackKeysInOrder.indexOf(track);
+    if (idx <= 0) return Math.max(gridTopY - 26, 20);
+    const prevTrack = trackKeysInOrder[idx - 1];
+    return (rowBounds[prevTrack].bottom + rowBounds[track].top) / 2;
+  }
+  function laneXForCol(colIdx) {
+    if (colIdx > 0) return (colBounds[colIdx - 1].right + colBounds[colIdx].left) / 2;
+    if (colBounds.length > 1) return (colBounds[0].right + colBounds[1].left) / 2;
+    return colBounds[0].left - 20;
+  }
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('id', 'arrow-svg');
+  svg.classList.add('arrow-svg');
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+
+  let svgDefs = `<defs>
+    <marker id="arrowhead-pending" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#E85D1A"/></marker>
+    <marker id="arrowhead-approved" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2E7D32"/></marker>
+    <marker id="arrowhead-rejected" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C62828"/></marker>
+  </defs>`;
+  let svgPaths = '';
+  let overlayHtml = '';
+
+  const fromEl = document.getElementById('node-' + cssId(selectedNodeId));
+  if (!fromEl) return;
+  const fr = fromEl.getBoundingClientRect();
+  const x1 = fr.left - containerRect.left + fr.width / 2;
+  const y1 = fr.top - containerRect.top;
+  const sourceInfo = NODE_INFO[selectedNodeId];
+  const sourceTrack = sourceInfo ? (sourceInfo.nama_sub_job_family || '(Tanpa Track)') : null;
+
+  relevantLinks.forEach((link, idx) => {
+    const toEl = document.getElementById('node-' + cssId(link.to_job_id));
+    if (!toEl) return;
+    const targetInfo = NODE_INFO[link.to_job_id];
+    const targetTrack = targetInfo ? (targetInfo.nama_sub_job_family || '(Tanpa Track)') : null;
+    const targetGrade = targetInfo ? targetInfo.tingkat_jabatan : null;
+
+    const tr = toEl.getBoundingClientRect();
+    const x2 = tr.left - containerRect.left + tr.width / 2;
+    const y2 = tr.top - containerRect.top;
+
+    const strokeColor = link.status === 'approved' ? '#2E7D32' : link.status === 'rejected' ? '#C62828' : '#E85D1A';
+    const dash = link.status === 'pending' ? '5,4' : 'none';
+    const markerId = 'arrowhead-' + link.status;
+
+    let d, tagX, tagY;
+    if (sourceTrack === targetTrack) {
+      // Baris sama: lewat 1 celah saja (di atas baris ini)
+      const gapY = rowGapAboveY(sourceTrack);
+      d = `M ${x1} ${y1} L ${x1} ${gapY} L ${x2} ${gapY} L ${x2} ${y2}`;
+      tagX = (x1 + x2) / 2; tagY = gapY;
+    } else {
+      // Baris beda: naik ke celah atas baris asal -> turun/naik via celah antar-kolom (selalu kosong) -> celah atas baris tujuan -> masuk kartu tujuan
+      const gapYSource = rowGapAboveY(sourceTrack);
+      const gapYTarget = rowGapAboveY(targetTrack);
+      const targetColIdx = colIndexOfGrade[targetGrade] ?? 0;
+      let laneX = laneXForCol(targetColIdx);
+      laneX += (idx % 5 - 2) * 5;
+      d = `M ${x1} ${y1} L ${x1} ${gapYSource} L ${laneX} ${gapYSource} L ${laneX} ${gapYTarget} L ${x2} ${gapYTarget} L ${x2} ${y2}`;
+      tagX = (laneX + x2) / 2; tagY = gapYTarget;
+    }
+
+    svgPaths += `<path d="${d}" stroke="${strokeColor}" stroke-width="2.5" stroke-dasharray="${dash}" fill="none" stroke-linejoin="round" marker-end="url(#${markerId})"/>`;
+    overlayHtml += `<div class="decision-action-tag tag-${link.action}" style="left:${tagX}px; top:${tagY}px;">${link.action}</div>`;
+  });
+
+  const linksByTarget = {};
+  relevantLinks.forEach(l => { (linksByTarget[l.to_job_id] = linksByTarget[l.to_job_id] || []).push(l); });
+
+  Object.keys(linksByTarget).forEach(toId => {
+    const actionsEl = document.getElementById('actions-' + cssId(toId));
+    if (!actionsEl) return;
+    const links = linksByTarget[toId];
+    let btnHtml = '';
+    links.forEach(link => {
+      const isApproved = link.status === 'approved';
+      const isRejected = link.status === 'rejected';
+      btnHtml += `
+        <button class="decision-btn reject ${isRejected ? 'active' : ''} ${isApproved ? 'dimmed' : ''}" onclick="event.stopPropagation(); decide(${link.id}, 'reject')" ${canApprove ? '' : 'disabled'} title="Reject ${link.action}">✗</button>
+        <button class="decision-btn approve ${isApproved ? 'active' : ''} ${isRejected ? 'dimmed' : ''}" onclick="event.stopPropagation(); decide(${link.id}, 'approve')" ${canApprove ? '' : 'disabled'} title="Approve ${link.action}">✓</button>`;
+    });
+    actionsEl.innerHTML = btnHtml;
+  });
+
+  svg.innerHTML = svgDefs + svgPaths;
+  container.insertBefore(svg, container.firstChild);
+  container.insertAdjacentHTML('beforeend', overlayHtml);
+}
+
+async function decide(linkId, action) {
+  try {
+    await api('/api/cp/batches/' + CURRENT_BATCH_ID + '/links/' + linkId + '/' + action, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    // Update status di memori (hindari reload total & kehilangan selection)
+    const link = ALL_LINKS.find(l => l.id === linkId);
+    if (link) link.status = action === 'approve' ? 'approved' : 'rejected';
+    const batchesJson = await api('/api/cp/batches');
+    BATCHES = batchesJson.batches;
+    updateSummary();
+    renderSidebar();
+    drawArrows();
+  } catch (e) {
+    alert('Gagal: ' + e.message);
+  }
+}
+
+async function exportCsv() {
+  try {
+    const json = await api('/api/cp/batches/' + CURRENT_BATCH_ID + '/export');
+    downloadText(json.nodes_csv, 'career-path-final-nodes.csv');
+    downloadText(json.nexts_csv, 'career-path-final-nexts.csv');
+  } catch (e) {
+    alert('Gagal export: ' + e.message);
+  }
+}
+
+function downloadText(text, filename) {
+  const blob = new Blob([text], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function openUploadModal() { document.getElementById('upload-modal').classList.add('show'); }
+function closeUploadModal() { document.getElementById('upload-modal').classList.remove('show'); }
+
+async function submitUpload() {
+  const batchName = document.getElementById('upload-batch-name').value.trim();
+  const nodesFile = document.getElementById('upload-nodes-file').files[0];
+  const nextsFile = document.getElementById('upload-nexts-file').files[0];
+  if (!batchName || !nodesFile || !nextsFile) { alert('Lengkapi nama batch dan kedua file CSV.'); return; }
+
+  const btn = document.getElementById('upload-submit-btn');
+  btn.disabled = true; btn.textContent = 'Mengupload...';
+
+  try {
+    const fd = new FormData();
+    fd.append('batch_name', batchName);
+    fd.append('nodes_file', nodesFile);
+    fd.append('nexts_file', nextsFile);
+    const res = await fetch('/api/cp/batches', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Upload gagal');
+    closeUploadModal();
+    document.getElementById('upload-batch-name').value = '';
+    document.getElementById('upload-nodes-file').value = '';
+    document.getElementById('upload-nexts-file').value = '';
+    await loadBatches();
+    alert(`Batch berhasil diupload: ${json.nodes_imported} jabatan, ${json.nexts_imported} jalur.`);
+  } catch (e) {
+    alert('Gagal: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Upload';
+  }
+}
+
+window.addEventListener('resize', () => { if (currentFamily) requestAnimationFrame(drawArrows); });
+
+loadBatches();
+</script>
+</body></html>
