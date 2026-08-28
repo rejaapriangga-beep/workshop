@@ -25,7 +25,10 @@ jobs:
         # runner's home directory.
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 -d > "$GITHUB_WORKSPACE/deploy_key"
-          chmod 600 "$GITHUB_WORKSPACE/deploy_key"
+          # 644, not 600: the ssh-action step reads this from inside a Docker
+          # container running as a different uid, so owner-only perms deny it.
+          # Short-lived (deleted at the end of this job) on an ephemeral runner.
+          chmod 644 "$GITHUB_WORKSPACE/deploy_key"
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
