@@ -15,6 +15,8 @@ header{background:var(--navy);padding:0 24px;height:56px;display:flex;align-item
 .brand-title{font-size:14px;font-weight:700;color:#fff;line-height:1.3;}
 .header-right{display:flex;align-items:center;gap:6px;}
 .user-chip{font-size:11px;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.08);padding:5px 10px;border-radius:6px;}
+.header-link{font-size:11px;color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.08);padding:5px 10px;border-radius:6px;text-decoration:none;}
+.header-link:hover{background:rgba(255,255,255,0.16);color:#fff;}
 .logout-btn{font-size:11px;color:rgba(239,68,68,0.85);background:rgba(239,68,68,0.1);padding:5px 10px;border-radius:6px;border:1px solid rgba(239,68,68,0.25);cursor:pointer;font-family:inherit;}
 .logout-btn:hover{background:rgba(239,68,68,0.2);}
 .content{max-width:960px;margin:0 auto;padding:40px 24px;}
@@ -36,6 +38,7 @@ header{background:var(--navy);padding:0 24px;height:56px;display:flex;align-item
   </div>
   <div class="header-right">
     <div class="user-chip" id="user-chip">—</div>
+    <a class="header-link" id="manage-users-link" href="manage-users.html" style="display:none;">Kelola User</a>
     <button class="logout-btn" onclick="doLogout()">Keluar</button>
   </div>
 </header>
@@ -52,6 +55,7 @@ const userStr = sessionStorage.getItem('workshop_user');
 if (!token || !userStr) window.location.replace('login.html');
 const user = JSON.parse(userStr || '{}');
 document.getElementById('user-chip').textContent = (user.nama || user.email) + ' — ' + user.role;
+if (user.role === 'admin') document.getElementById('manage-users-link').style.display = '';
 
 function doLogout() {
   sessionStorage.clear();
@@ -66,22 +70,13 @@ async function loadModules() {
     if (res.status === 401) { doLogout(); return; }
     const json = await res.json();
     const grid = document.getElementById('module-grid');
-    let cards = (json.modules || []).map(m => `
+    const cards = (json.modules || []).map(m => `
       <a class="module-card" href="${m.url_slug}">
         <div class="module-icon">${ICONS[m.module_key] || '📋'}</div>
         <div class="module-name">${m.module_name}</div>
         <div class="module-desc">${m.description || ''}</div>
       </a>
     `).join('');
-    if (user.role === 'admin') {
-      cards += `
-        <a class="module-card" href="manage-users.html">
-          <div class="module-icon">👤</div>
-          <div class="module-name">Kelola User</div>
-          <div class="module-desc">Tambah, ubah role, dan nonaktifkan akun tim review &amp; approval.</div>
-        </a>
-      `;
-    }
     grid.innerHTML = cards || '<div class="empty-state">Belum ada modul approval yang aktif.</div>';
   } catch (e) {
     document.getElementById('module-grid').innerHTML = '<div class="empty-state">Gagal memuat modul: ' + e.message + '</div>';
