@@ -1,0 +1,262 @@
+<!DOCTYPE html><html lang="id"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kelola User — Approval Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F6FB;--white:#FFFFFF;--text:#1A1F36;--text-muted:#6B7394;--border:#E2E6F0;--navy:#0F2A4A;--orange:#E85D1A;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{background:var(--navy);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(15,42,74,0.25);}
+.header-left{display:flex;align-items:center;gap:12px;}
+.logo-box{width:30px;height:30px;background:var(--orange);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-box svg{width:15px;height:15px;}
+.brand-sub{font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:0.12em;text-transform:uppercase;line-height:1;}
+.brand-title{font-size:14px;font-weight:700;color:#fff;line-height:1.3;}
+.header-right{display:flex;align-items:center;gap:6px;}
+.user-chip{font-size:11px;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.08);padding:5px 10px;border-radius:6px;}
+.logout-btn{font-size:11px;color:rgba(239,68,68,0.85);background:rgba(239,68,68,0.1);padding:5px 10px;border-radius:6px;border:1px solid rgba(239,68,68,0.25);cursor:pointer;font-family:inherit;}
+.logout-btn:hover{background:rgba(239,68,68,0.2);}
+.content{max-width:960px;margin:0 auto;padding:32px 24px;}
+.back-link{font-size:12px;color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:16px;}
+.back-link:hover{color:var(--navy);}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap;}
+.page-title{font-family:"Syne",sans-serif;font-size:24px;}
+.page-sub{font-size:13px;color:var(--text-muted);margin-top:2px;}
+.btn-primary{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.btn-primary:hover{background:#0A1F38;}
+.table-card{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);padding:12px 16px;border-bottom:1px solid var(--border);background:#FAFBFD;}
+tbody td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr.inactive{opacity:0.5;}
+.cell-nama{font-weight:600;}
+.cell-email{color:var(--text-muted);font-size:12px;}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;text-transform:capitalize;}
+.badge-admin{background:#FEF0E7;color:var(--orange);}
+.badge-hc_approver{background:#E8F1FE;color:#1D5FD1;}
+.badge-submitter{background:#EDF7EE;color:#2E8B4E;}
+.badge-inactive{background:#F1F2F6;color:var(--text-muted);}
+.row-actions{display:flex;gap:6px;}
+.icon-btn{background:none;border:1px solid var(--border);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;justify-content:center;}
+.icon-btn:hover{border-color:var(--navy);}
+.icon-btn.danger:hover{border-color:#C62828;background:#FEF2F2;}
+.empty-state{text-align:center;padding:48px 20px;color:var(--text-muted);font-size:13px;}
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(15,42,74,0.35);display:none;align-items:center;justify-content:center;z-index:10;padding:16px;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:400px;padding:24px;box-shadow:0 12px 40px rgba(15,42,74,0.2);}
+.modal h2{font-family:"Syne",sans-serif;font-size:17px;margin-bottom:16px;}
+label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px;}
+input,select{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;margin-bottom:14px;outline:none;}
+input:focus,select:focus{border-color:var(--navy);}
+.hint{font-size:11px;color:var(--text-muted);margin-top:-10px;margin-bottom:14px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;}
+.btn-ghost{background:none;border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-muted);}
+.btn-ghost:hover{border-color:var(--navy);color:var(--navy);}
+.form-error{background:#FEF2F2;color:#C62828;border:1px solid #FFCDD2;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:14px;display:none;}
+</style></head>
+<body>
+<header>
+  <div class="header-left">
+    <div class="logo-box"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+    <div><div class="brand-sub">KAI — Human Capital</div><div class="brand-title">Approval Center</div></div>
+  </div>
+  <div class="header-right">
+    <div class="user-chip" id="user-chip">—</div>
+    <button class="logout-btn" onclick="doLogout()">Keluar</button>
+  </div>
+</header>
+<div class="content">
+  <a class="back-link" href="index.html">&larr; Kembali ke Modul</a>
+  <div class="page-header">
+    <div>
+      <div class="page-title">Kelola User</div>
+      <div class="page-sub">Tambah, ubah role, dan nonaktifkan akun tim review &amp; approval.</div>
+    </div>
+    <button class="btn-primary" onclick="openModal()">+ Tambah User</button>
+  </div>
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr><th>Nama</th><th>Role</th><th>Status</th><th>Dibuat</th><th></th></tr>
+      </thead>
+      <tbody id="user-tbody">
+        <tr><td colspan="5"><div class="empty-state">Memuat data...</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="modal-title">Tambah User</h2>
+    <div class="form-error" id="form-error"></div>
+    <form id="user-form">
+      <input type="hidden" id="f-id">
+      <label for="f-nama">Nama</label>
+      <input id="f-nama" required>
+      <label for="f-email">Email</label>
+      <input id="f-email" type="email" required>
+      <label for="f-password">Password</label>
+      <input id="f-password" type="password" autocomplete="new-password">
+      <div class="hint" id="password-hint">Minimal 6 karakter</div>
+      <label for="f-role">Role</label>
+      <select id="f-role" required>
+        <option value="submitter">Submitter</option>
+        <option value="hc_approver">HC Approver</option>
+        <option value="admin">Admin</option>
+      </select>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" onclick="closeModal()">Batal</button>
+        <button type="submit" class="btn-primary" id="save-btn">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const token = sessionStorage.getItem('workshop_token');
+const userStr = sessionStorage.getItem('workshop_user');
+if (!token || !userStr) window.location.replace('login.html');
+const me = JSON.parse(userStr || '{}');
+if (me.role !== 'admin') window.location.replace('index.html');
+document.getElementById('user-chip').textContent = (me.nama || me.email) + ' — ' + me.role;
+
+function doLogout() { sessionStorage.clear(); window.location.replace('login.html'); }
+
+const ROLE_LABEL = { admin: 'Admin', hc_approver: 'HC Approver', submitter: 'Submitter' };
+let users = [];
+
+async function api(path, options = {}) {
+  const res = await fetch(path, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, ...(options.headers || {}) },
+  });
+  if (res.status === 401) { doLogout(); throw new Error('Sesi berakhir'); }
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'Terjadi kesalahan');
+  return json;
+}
+
+async function loadUsers() {
+  const tbody = document.getElementById('user-tbody');
+  try {
+    const json = await api('/api/users');
+    users = json.users || [];
+    if (users.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Belum ada user.</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = users.map(u => `
+      <tr class="${u.is_active ? '' : 'inactive'}">
+        <td>
+          <div class="cell-nama">${escapeHtml(u.nama || '-')}</div>
+          <div class="cell-email">${escapeHtml(u.email)}</div>
+        </td>
+        <td><span class="badge badge-${u.role}">${ROLE_LABEL[u.role] || u.role}</span></td>
+        <td>${u.is_active ? '<span class="badge" style="background:#EDF7EE;color:#2E8B4E;">Aktif</span>' : '<span class="badge badge-inactive">Nonaktif</span>'}</td>
+        <td>${new Date(u.created_at).toLocaleDateString('id-ID')}</td>
+        <td>
+          <div class="row-actions">
+            <button class="icon-btn" title="Edit" onclick="openModal(${u.id})">✏️</button>
+            ${u.id === me.id
+              ? ''
+              : u.is_active
+                ? `<button class="icon-btn danger" title="Nonaktifkan" onclick="deactivateUser(${u.id})">🚫</button>`
+                : `<button class="icon-btn" title="Aktifkan kembali" onclick="reactivateUser(${u.id})">♻️</button>`}
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Gagal memuat: ' + escapeHtml(e.message) + '</div></td></tr>';
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function openModal(id) {
+  const errBox = document.getElementById('form-error');
+  errBox.style.display = 'none';
+  const form = document.getElementById('user-form');
+  form.reset();
+  if (id) {
+    const u = users.find(x => x.id === id);
+    document.getElementById('modal-title').textContent = 'Edit User';
+    document.getElementById('f-id').value = u.id;
+    document.getElementById('f-nama').value = u.nama || '';
+    document.getElementById('f-email').value = u.email;
+    document.getElementById('f-email').disabled = true;
+    document.getElementById('f-role').value = u.role;
+    document.getElementById('f-role').disabled = (u.id === me.id);
+    document.getElementById('password-hint').textContent = 'Kosongkan jika tidak ingin ganti password';
+  } else {
+    document.getElementById('modal-title').textContent = 'Tambah User';
+    document.getElementById('f-id').value = '';
+    document.getElementById('f-email').disabled = false;
+    document.getElementById('f-role').disabled = false;
+    document.getElementById('password-hint').textContent = 'Minimal 6 karakter';
+  }
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+
+document.getElementById('user-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errBox = document.getElementById('form-error');
+  errBox.style.display = 'none';
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true; btn.textContent = 'Menyimpan...';
+
+  const id = document.getElementById('f-id').value;
+  const nama = document.getElementById('f-nama').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const password = document.getElementById('f-password').value;
+  const role = document.getElementById('f-role').value;
+
+  try {
+    if (id) {
+      const payload = { nama, role };
+      if (password) payload.password = password;
+      await api('/api/users/' + id, { method: 'PUT', body: JSON.stringify(payload) });
+    } else {
+      if (!password) throw new Error('Password wajib diisi untuk user baru');
+      await api('/api/users', { method: 'POST', body: JSON.stringify({ nama, email, role, password }) });
+    }
+    closeModal();
+    loadUsers();
+  } catch (e) {
+    errBox.textContent = e.message;
+    errBox.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Simpan';
+  }
+});
+
+async function deactivateUser(id) {
+  if (!confirm('Nonaktifkan user ini? User tidak akan bisa login lagi, tapi riwayat approval-nya tetap tersimpan.')) return;
+  try {
+    await api('/api/users/' + id, { method: 'DELETE' });
+    loadUsers();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+async function reactivateUser(id) {
+  try {
+    await api('/api/users/' + id, { method: 'PUT', body: JSON.stringify({ is_active: true }) });
+    loadUsers();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+loadUsers();
+</script>
+</body></html>
