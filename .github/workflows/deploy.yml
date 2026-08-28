@@ -20,21 +20,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Decode SSH key
+        # Written into the workspace dir, not ~/.ssh: the ssh-action below runs in
+        # its own Docker container that only mounts $GITHUB_WORKSPACE, not the
+        # runner's home directory.
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 -d > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+          echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 -d > "$GITHUB_WORKSPACE/deploy_key"
+          chmod 600 "$GITHUB_WORKSPACE/deploy_key"
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key_path: ~/.ssh/deploy_key
+          key_path: deploy_key
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
             bash ~/workshop-repo/deploy.sh
 
       - name: Clean up key
         if: always()
-        run: rm -f ~/.ssh/deploy_key
+        run: rm -f "$GITHUB_WORKSPACE/deploy_key"
