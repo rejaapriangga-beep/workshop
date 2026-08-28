@@ -66,17 +66,23 @@ async function loadModules() {
     if (res.status === 401) { doLogout(); return; }
     const json = await res.json();
     const grid = document.getElementById('module-grid');
-    if (!json.modules || json.modules.length === 0) {
-      grid.innerHTML = '<div class="empty-state">Belum ada modul approval yang aktif.</div>';
-      return;
-    }
-    grid.innerHTML = json.modules.map(m => `
+    let cards = (json.modules || []).map(m => `
       <a class="module-card" href="${m.url_slug}">
         <div class="module-icon">${ICONS[m.module_key] || '📋'}</div>
         <div class="module-name">${m.module_name}</div>
         <div class="module-desc">${m.description || ''}</div>
       </a>
     `).join('');
+    if (user.role === 'admin') {
+      cards += `
+        <a class="module-card" href="manage-users.html">
+          <div class="module-icon">👤</div>
+          <div class="module-name">Kelola User</div>
+          <div class="module-desc">Tambah, ubah role, dan nonaktifkan akun tim review &amp; approval.</div>
+        </a>
+      `;
+    }
+    grid.innerHTML = cards || '<div class="empty-state">Belum ada modul approval yang aktif.</div>';
   } catch (e) {
     document.getElementById('module-grid').innerHTML = '<div class="empty-state">Gagal memuat modul: ' + e.message + '</div>';
   }

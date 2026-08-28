@@ -45,6 +45,15 @@ function approverOnly(req, res, next) {
   next();
 }
 
+function adminOnly(req, res, next) {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Hanya Admin yang bisa melakukan aksi ini' });
+  }
+  next();
+}
+
+const VALID_ROLES = ['admin', 'hc_approver', 'submitter'];
+
 // ============================================================
 // AUTH ROUTES
 // ============================================================
@@ -56,6 +65,7 @@ app.post('/api/auth/login', async (req, res) => {
     const { rows } = await pool.query('SELECT * FROM approval_users WHERE email = $1', [email.toLowerCase().trim()]);
     const user = rows[0];
     if (!user) return res.status(401).json({ error: 'Email atau password salah' });
+    if (user.is_active === false) return res.status(401).json({ error: 'Akun ini sudah dinonaktifkan' });
 
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) return res.status(401).json({ error: 'Email atau password salah' });
@@ -74,6 +84,121 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.get('/api/auth/me', authRequired, (req, res) => {
   res.json({ user: req.user });
+});
+
+// ============================================================
+// KELOLA USER (admin only)
+// ============================================================
+app.get('/api/users', authRequired, adminOnly, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, email, nama, role, is_active, created_at
+       FROM approval_users ORDER BY created_at DESC`
+    );
+    res.json({ users: rows });
+  } catch (e) {
+    console.error('[USERS LIST ERROR]', e);
+    res.status(500).json({ error: 'Gagal memuat daftar user' });
+  }
+});
+
+app.post('/api/users', authRequired, adminOnly, async (req, res) => {
+  try {
+    const { email, password, nama, role } = req.body;
+    if (!email || !password || !nama || !role) {
+      return res.status(400).json({ error: 'Email, password, nama, dan role wajib diisi' });
+    }
+    if (!VALID_ROLES.includes(role)) {
+      return res.status(400).json({ error: `Role tidak valid. Pilihan: ${VALID_ROLES.join(', ')}` });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password minimal 6 karakter' });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    const { rows } = await pool.query(
+      `INSERT INTO approval_users (email, password_hash, nama, role)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, email, nama, role, is_active, created_at`,
+      [email.toLowerCase().trim(), hash, nama, role]
+    );
+    res.status(201).json({ user: rows[0] });
+  } catch (e) {
+    if (e.code === '23505') return res.status(409).json({ error: 'Email ini sudah terdaftar' });
+    console.error('[USER CREATE ERROR]', e);
+    res.status(500).json({ error: 'Gagal membuat user' });
+  }
+});
+
+app.put('/api/users/:id', authRequired, adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nama, role, password, is_active } = req.body;
+    const targetId = parseInt(id, 10);
+    const isSelf = targetId === req.user.id;
+
+    if (role !== undefined && !VALID_ROLES.includes(role)) {
+      return res.status(400).json({ error: `Role tidak valid. Pilihan: ${VALID_ROLES.join(', ')}` });
+    }
+    if (isSelf && role !== undefined && role !== 'admin') {
+      return res.status(400).json({ error: 'Tidak bisa mengubah role akun sendiri menjadi non-admin' });
+    }
+    if (isSelf && is_active === false) {
+      return res.status(400).json({ error: 'Tidak bisa menonaktifkan akun sendiri' });
+    }
+    if (password !== undefined && password.length > 0 && password.length < 6) {
+      return res.status(400).json({ error: 'Password minimal 6 karakter' });
+    }
+
+    const fields = [];
+    const values = [];
+    let i = 1;
+    if (nama !== undefined) { fields.push(`nama = $${i++}`); values.push(nama); }
+    if (role !== undefined) { fields.push(`role = $${i++}`); values.push(role); }
+    if (is_active !== undefined) { fields.push(`is_active = $${i++}`); values.push(is_active); }
+    if (password !== undefined && password.length > 0) {
+      const hash = await bcrypt.hash(password, 10);
+      fields.push(`password_hash = $${i++}`);
+      values.push(hash);
+    }
+    if (fields.length === 0) return res.status(400).json({ error: 'Tidak ada perubahan yang dikirim' });
+
+    values.push(targetId);
+    const { rows } = await pool.query(
+      `UPDATE approval_users SET ${fields.join(', ')} WHERE id = $${i}
+       RETURNING id, email, nama, role, is_active, created_at`,
+      values
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'User tidak ditemukan' });
+    res.json({ user: rows[0] });
+  } catch (e) {
+    if (e.code === '23505') return res.status(409).json({ error: 'Email ini sudah terdaftar' });
+    console.error('[USER UPDATE ERROR]', e);
+    res.status(500).json({ error: 'Gagal mengubah user' });
+  }
+});
+
+// Nonaktifkan user (soft-delete). approval_users direferensi via FK oleh
+// data approval lain, jadi hapus permanen tidak dipakai di sini.
+app.delete('/api/users/:id', authRequired, adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const targetId = parseInt(id, 10);
+    if (targetId === req.user.id) {
+      return res.status(400).json({ error: 'Tidak bisa menonaktifkan akun sendiri' });
+    }
+
+    const { rows } = await pool.query(
+      `UPDATE approval_users SET is_active = false WHERE id = $1
+       RETURNING id, email, nama, role, is_active, created_at`,
+      [targetId]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'User tidak ditemukan' });
+    res.json({ success: true, user: rows[0] });
+  } catch (e) {
+    console.error('[USER DEACTIVATE ERROR]', e);
+    res.status(500).json({ error: 'Gagal menonaktifkan user' });
+  }
 });
 
 // ============================================================
