@@ -490,6 +490,11 @@ app.get('/api/cp/batches/:id/export', authRequired, async (req, res) => {
   }
 });
 
+// ============================================================
+// BUKU PROFIL KOMPETENSI JABATAN (upload Excel → export PDF)
+// ============================================================
+app.use('/api/kp', require('./kompetensi/routes')({ pool, authRequired, approverOnly }));
+
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
 app.listen(PORT, () => console.log(`[workshop-api] listening on port ${PORT}`));
