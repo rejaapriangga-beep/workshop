@@ -1,0 +1,735 @@
+<!DOCTYPE html><html lang="id"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buku Profil Kompetensi — Approval Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#F4F6FB;--white:#FFFFFF;--text:#1A1F36;--text-muted:#6B7394;--border:#E2E6F0;--navy:#0F2A4A;--orange:#E85D1A;
+--accent:#6D4FE0;--accent-bg:#F1EDFC;--accent-soft:#EEF0FF;--danger:#D64545;--ok:#2E8B4E;--warn:#B26A00;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Plus Jakarta Sans",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{background:var(--navy);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(15,42,74,0.25);}
+.header-left{display:flex;align-items:center;gap:12px;}
+.logo-box{width:30px;height:30px;background:var(--orange);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;}
+.logo-box svg{width:15px;height:15px;}
+.brand-sub{font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:0.12em;text-transform:uppercase;line-height:1;}
+.brand-title{font-size:14px;font-weight:700;color:#fff;line-height:1.3;}
+.header-right{display:flex;align-items:center;gap:6px;}
+.user-chip{font-size:11px;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.08);padding:5px 10px;border-radius:6px;}
+.header-link{font-size:11px;color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.08);padding:5px 10px;border-radius:6px;text-decoration:none;}
+.logout-btn{font-size:11px;color:rgba(239,68,68,0.85);background:rgba(239,68,68,0.1);padding:5px 10px;border-radius:6px;border:1px solid rgba(239,68,68,0.25);cursor:pointer;font-family:inherit;}
+.content{max-width:1100px;margin:0 auto;padding:32px 24px 80px;}
+.page-title{font-family:"Syne",sans-serif;font-size:26px;margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:18px;}
+.card h2{font-size:15px;font-weight:700;margin-bottom:4px;}
+.card .hint{font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
+.row > .f{flex:1;min-width:200px;}
+label{font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.04em;}
+input[type=text],select,textarea{width:100%;padding:9px 12px;border:1px solid transparent;background:var(--accent-soft);border-radius:9px;font-family:inherit;font-size:13px;outline:none;}
+input[type=text]:focus,select:focus,textarea:focus{border-color:var(--accent);}
+input[type=file]{font-family:inherit;font-size:12px;}
+.btn{border-radius:999px;padding:9px 16px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;border:1px solid transparent;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:#5A3FC7;}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-ghost{background:#fff;border-color:var(--border);color:var(--text);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-danger{background:#fff;border-color:#F2C4C4;color:var(--danger);}
+.btn-sm{padding:5px 11px;font-size:11.5px;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead th{text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);padding:8px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.04em;}
+tbody td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tbody tr.sel td{background:var(--accent-bg);}
+tbody tr.clickable{cursor:pointer;}
+tbody tr.clickable:hover td{background:#F8F7FE;}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;}
+.b-ok{background:#EDF7EE;color:var(--ok);}
+.b-warn{background:#FFF4E0;color:var(--warn);}
+.msg{border-radius:8px;padding:9px 12px;font-size:12.5px;margin:10px 0;display:none;line-height:1.5;}
+.msg.err{display:block;background:#FEF2F2;color:#C62828;border:1px solid #FFCDD2;}
+.msg.ok{display:block;background:#EDF7EE;color:var(--ok);border:1px solid #CFEAD3;}
+.msg.warn{display:block;background:#FFF8EC;color:var(--warn);border:1px solid #F5DDB0;}
+.map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px 14px;margin:8px 0 6px;}
+.map-grid label .req{color:var(--danger);}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;}
+.stat{background:var(--accent-soft);border-radius:10px;padding:10px 14px;min-width:120px;}
+.stat b{display:block;font-size:20px;font-family:"Syne",sans-serif;}
+.stat span{font-size:11px;color:var(--text-muted);}
+.progress{height:8px;background:var(--accent-soft);border-radius:99px;overflow:hidden;margin-top:10px;}
+.progress > div{height:100%;background:var(--accent);width:0;transition:width .2s;}
+.sheet-list{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;background:var(--accent-soft);padding:6px 10px;border-radius:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:500;color:var(--text);margin:0;}
+.cols-box{max-height:180px;overflow:auto;display:flex;gap:6px;flex-wrap:wrap;padding:8px;border:1px dashed var(--border);border-radius:9px;}
+.section-title{font-size:12px;font-weight:700;margin:16px 0 6px;color:var(--navy);}
+.tabs{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--border);}
+.tab{padding:9px 14px;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.fam{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;}
+.fam-head{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#FAFBFE;cursor:pointer;}
+.fam-head .name{flex:1;font-weight:700;font-size:13px;}
+.fam-head .count{font-size:11.5px;color:var(--text-muted);}
+.sub{border-top:1px solid var(--border);}
+.sub-head{display:flex;align-items:center;gap:10px;padding:8px 12px 8px 30px;cursor:pointer;}
+.sub-head .name{flex:1;font-weight:600;font-size:12.5px;}
+.jab{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 52px;font-size:12.5px;border-top:1px dashed var(--border);}
+.jab .name{flex:1;}
+.jab .code{color:var(--text-muted);font-size:11px;min-width:90px;}
+.caret{display:inline-block;width:7px;height:7px;border-right:2px solid var(--text-muted);border-bottom:2px solid var(--text-muted);transform:rotate(-45deg);transition:transform .15s;margin:0 4px;}
+.open > .fam-head .caret,.open > .sub-head .caret{transform:rotate(45deg);}
+.export-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+.export-item{border:1px solid var(--border);border-radius:10px;padding:14px;}
+.export-item h3{font-size:13px;margin-bottom:4px;}
+.export-item p{font-size:11.5px;color:var(--text-muted);margin-bottom:10px;line-height:1.5;}
+.preview-table td,.preview-table th{font-size:11.5px;padding:6px 8px;}
+.muted{color:var(--text-muted);font-size:12px;}
+.hidden{display:none !important;}
+@media (max-width:640px){header{padding:0 12px}.brand-sub,.user-chip{display:none}.content{padding:20px 16px 60px}.jab{padding-left:24px}.sub-head{padding-left:16px}}
+</style></head>
+<body>
+<header>
+  <div class="header-left">
+    <div class="logo-box" onclick="location.href='index.html'" title="Kembali ke daftar modul"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
+    <div><div class="brand-sub">KAI — Human Capital</div><div class="brand-title">Buku Profil Kompetensi Jabatan</div></div>
+  </div>
+  <div class="header-right">
+    <div class="user-chip" id="user-chip">—</div>
+    <a class="header-link" href="index.html">← Modul</a>
+    <button class="logout-btn" onclick="doLogout()">Keluar</button>
+  </div>
+</header>
+
+<div class="content">
+  <div class="page-title">Buku Profil Kompetensi Jabatan</div>
+  <div class="page-sub">Upload profil kompetensi dari Excel, lalu export PDF per jabatan, per sub job family, atau per job family untuk lampiran SK Direksi.</div>
+
+  <!-- ===================== UPLOAD ===================== -->
+  <div class="card" id="upload-card">
+    <h2>1. Upload Excel Profil Kompetensi</h2>
+    <div class="hint">
+      Boleh pilih beberapa file sekaligus (.xlsx / .xls / .csv). Dua format didukung:
+      <b>(A) Baris per kompetensi</b> — satu baris = satu kompetensi dari satu jabatan (kolom jabatan boleh dikosongkan/di-merge di baris lanjutan);
+      <b>(B) Matriks</b> — satu baris = satu jabatan, kolom-kolomnya nama kompetensi berisi level.
+      <a href="#" onclick="downloadTemplate();return false;">Unduh template Excel</a>.
+    </div>
+    <div class="row">
+      <div class="f"><label>Nama Batch</label><input type="text" id="batch-name" placeholder="mis. Profil Kompetensi 2026 — SK Direksi"></div>
+      <div class="f"><label>File Excel</label><input type="file" id="file-input" accept=".xlsx,.xls,.xlsm,.csv" multiple></div>
+    </div>
+    <div class="msg" id="upload-msg"></div>
+
+    <div id="mapping" class="hidden">
+      <div class="section-title">Sheet yang dibaca</div>
+      <div class="sheet-list" id="sheet-list"></div>
+
+      <div class="section-title">Format data</div>
+      <div class="sheet-list">
+        <label class="chk"><input type="radio" name="fmt" value="long" checked> (A) Baris per kompetensi</label>
+        <label class="chk"><input type="radio" name="fmt" value="matrix"> (B) Matriks jabatan × kompetensi</label>
+      </div>
+
+      <div class="section-title">Pemetaan kolom (terdeteksi otomatis — sesuaikan bila perlu)</div>
+      <div class="map-grid" id="map-jabatan"></div>
+      <div id="map-long-box"><div class="map-grid" id="map-long"></div></div>
+      <div id="map-matrix-box" class="hidden">
+        <label style="margin-top:8px">Kolom kompetensi (isi sel = level)</label>
+        <div class="cols-box" id="matrix-cols"></div>
+        <div class="row" style="margin-top:10px">
+          <div class="f"><label>Sheet kamus kompetensi (opsional: nama, kelompok, definisi, indikator)</label><select id="kamus-sheet"></select></div>
+        </div>
+      </div>
+      <label class="chk" style="margin-top:10px"><input type="checkbox" id="ffill" checked> Isi otomatis kolom jabatan yang kosong dari baris di atasnya (untuk sel yang di-merge)</label>
+
+      <div class="stats" id="parse-stats"></div>
+      <div class="msg" id="parse-msg"></div>
+      <div id="parse-preview"></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn btn-primary" id="btn-upload" onclick="doUpload()">Simpan ke Server</button>
+        <button class="btn btn-ghost" onclick="resetUpload()">Batal</button>
+      </div>
+      <div class="progress hidden" id="upload-progress"><div></div></div>
+    </div>
+  </div>
+
+  <!-- ===================== BATCH LIST ===================== -->
+  <div class="card">
+    <h2>2. Daftar Batch</h2>
+    <div class="hint">Pilih batch untuk mengatur kop lampiran SK dan melakukan export PDF.</div>
+    <table>
+      <thead><tr><th>Nama Batch</th><th>File</th><th>Jabatan</th><th>Job Family</th><th>Status</th><th>Diunggah</th><th></th></tr></thead>
+      <tbody id="batch-body"><tr><td colspan="7" class="muted">Memuat...</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- ===================== DETAIL ===================== -->
+  <div class="card hidden" id="detail-card">
+    <h2 id="detail-title">—</h2>
+    <div class="stats" id="detail-stats"></div>
+    <div class="tabs">
+      <button class="tab active" data-tab="export">Export PDF</button>
+      <button class="tab" data-tab="browse">Jabatan per Job Family</button>
+      <button class="tab" data-tab="settings">Pengaturan Lampiran SK</button>
+    </div>
+
+    <div data-pane="export">
+      <div class="export-grid">
+        <div class="export-item">
+          <h3>📄 PDF per Jabatan (ZIP)</h3>
+          <p>Satu file PDF untuk setiap jabatan, tersusun dalam folder Job Family / Sub Job Family.</p>
+          <a class="btn btn-primary btn-sm" data-zip="jabatan">Unduh ZIP</a>
+        </div>
+        <div class="export-item">
+          <h3>📚 PDF per Sub Job Family (ZIP)</h3>
+          <p>Satu buku per sub job family: sampul, daftar isi, lalu profil tiap jabatan.</p>
+          <a class="btn btn-primary btn-sm" data-zip="sub_job_family">Unduh ZIP</a>
+        </div>
+        <div class="export-item">
+          <h3>📘 PDF per Job Family (ZIP)</h3>
+          <p>Satu buku per job family, dibagi per sub job family, dengan daftar isi.</p>
+          <a class="btn btn-primary btn-sm" data-zip="job_family">Unduh ZIP</a>
+        </div>
+      </div>
+      <div class="msg warn" style="margin-top:14px">Membuat ribuan PDF sekaligus butuh beberapa menit. File ZIP akan mulai terunduh dan terus bertambah sampai selesai, jangan tutup tab ini. Untuk satu job family saja, pakai tab <b>Jabatan per Job Family</b>.</div>
+    </div>
+
+    <div data-pane="browse" class="hidden">
+      <div class="row" style="margin-bottom:12px">
+        <div class="f"><input type="text" id="search" placeholder="Cari nama / kode jabatan..."></div>
+      </div>
+      <div id="tree"></div>
+    </div>
+
+    <div data-pane="settings" class="hidden">
+      <div class="hint">Teks ini tampil di kanan atas setiap profil jabatan (kop lampiran) dan sebagai blok tanda tangan di akhir dokumen. Kosongkan yang tidak perlu. Hanya HC Approver/Admin yang dapat menyimpan.</div>
+      <div class="map-grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
+        <div><label>Judul dokumen</label><input type="text" id="s-judul"></div>
+        <div><label>Nama perusahaan</label><input type="text" id="s-nama_perusahaan" placeholder="PT KERETA API INDONESIA (PERSERO)"></div>
+        <div><label>Label lampiran</label><input type="text" id="s-lampiran_label" placeholder="LAMPIRAN"></div>
+        <div><label>Nomor SK</label><input type="text" id="s-nomor_sk" placeholder="KEP.U/KO.104/XI/1/KA-2026"></div>
+        <div><label>Tanggal SK</label><input type="text" id="s-tanggal_sk" placeholder="13 November 2026"></div>
+        <div><label>Tentang / perihal</label><input type="text" id="s-perihal" placeholder="Profil Kompetensi Jabatan"></div>
+      </div>
+      <label class="chk" style="margin:10px 0"><input type="checkbox" id="s-tampilkan_kop"> Tampilkan kop lampiran SK</label>
+      <label class="chk" style="margin:10px 0"><input type="checkbox" id="s-tampilkan_ttd"> Tampilkan blok tanda tangan di akhir dokumen</label>
+      <div class="map-grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
+        <div><label>Ditetapkan di</label><input type="text" id="s-tempat_ttd" placeholder="Bandung"></div>
+        <div><label>Pada tanggal</label><input type="text" id="s-tanggal_ttd"></div>
+        <div><label>Jabatan penandatangan</label><input type="text" id="s-jabatan_ttd" placeholder="DIREKTUR UTAMA"></div>
+        <div><label>Nama penandatangan</label><input type="text" id="s-nama_ttd"></div>
+      </div>
+      <div class="msg" id="settings-msg"></div>
+      <div class="row" style="margin-top:6px">
+        <button class="btn btn-primary" onclick="saveSettings()">Simpan Pengaturan</button>
+        <a class="btn btn-ghost" id="settings-preview" target="_blank">Pratinjau PDF jabatan pertama</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const token = sessionStorage.getItem('workshop_token');
+const userStr = sessionStorage.getItem('workshop_user');
+if (!token || !userStr) window.location.replace('login.html');
+const user = JSON.parse(userStr || '{}');
+const isApprover = ['admin', 'hc_approver'].includes(user.role);
+document.getElementById('user-chip').textContent = (user.nama || user.email) + ' — ' + user.role;
+function doLogout() { sessionStorage.clear(); window.location.replace('login.html'); }
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function showMsg(id, type, html) { const el = $(id); el.className = 'msg ' + type; el.innerHTML = html; }
+function hideMsg(id) { $(id).className = 'msg'; }
+
+async function api(path, opts = {}) {
+  const res = await fetch('/api/kp' + path, {
+    ...opts,
+    headers: { 'Authorization': 'Bearer ' + token, ...(opts.body ? { 'Content-Type': 'application/json' } : {}), ...(opts.headers || {}) },
+  });
+  if (res.status === 401) { doLogout(); throw new Error('Sesi berakhir'); }
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || ('HTTP ' + res.status));
+  return json;
+}
+const dl = (path, params = {}) => '/api/kp' + path + '?' + new URLSearchParams({ ...params, token }).toString();
+
+// =====================================================================
+// PEMETAAN KOLOM
+// =====================================================================
+const JAB_FIELDS = [
+  { key: 'kode_jabatan', label: 'Kode Jabatan', req: true, alias: ['kode jabatan', 'id jabatan', 'kd jabatan', 'kode jab', 'job code', 'position code', 'kode posisi', 'id posisi', 'kode'] },
+  { key: 'nama_jabatan', label: 'Nama Jabatan', req: true, alias: ['nama jabatan', 'jabatan', 'job title', 'nama posisi', 'position', 'posisi', 'job name'] },
+  { key: 'job_family', label: 'Job Family', alias: ['job family', 'nama job family', 'rumpun jabatan', 'family jabatan', 'family', 'jf'] },
+  { key: 'sub_job_family', label: 'Sub Job Family', alias: ['sub job family', 'nama sub job family', 'sub family', 'sub rumpun jabatan', 'sub rumpun', 'sjf'] },
+  { key: 'unit_kerja', label: 'Unit Kerja', alias: ['unit kerja', 'unit organisasi', 'unit', 'direktorat', 'divisi', 'organisasi', 'satuan kerja'] },
+  { key: 'tingkat_jabatan', label: 'Tingkat / Grade Jabatan', alias: ['tingkat jabatan', 'grade jabatan', 'kelas jabatan', 'level jabatan', 'job grade', 'grade', 'band', 'tingkat'] },
+  { key: 'jenis_jabatan', label: 'Jenis Jabatan', alias: ['jenis jabatan', 'tipe jabatan', 'kategori jabatan'] },
+  { key: 'tujuan_jabatan', label: 'Tujuan / Ikhtisar Jabatan', alias: ['tujuan jabatan', 'ikhtisar jabatan', 'job purpose', 'tujuan', 'ikhtisar'] },
+];
+const KOMP_FIELDS = [
+  { key: 'kelompok', label: 'Kelompok Kompetensi', alias: ['kelompok kompetensi', 'jenis kompetensi', 'kategori kompetensi', 'tipe kompetensi', 'cluster kompetensi', 'klaster kompetensi', 'kelompok', 'kategori', 'cluster'] },
+  { key: 'kode', label: 'Kode Kompetensi', alias: ['kode kompetensi', 'id kompetensi', 'kd kompetensi'] },
+  { key: 'nama', label: 'Nama Kompetensi', req: true, alias: ['nama kompetensi', 'kompetensi', 'competency', 'nama kompetensi teknis'] },
+  { key: 'definisi', label: 'Definisi', alias: ['definisi kompetensi', 'definisi', 'deskripsi kompetensi', 'uraian kompetensi', 'deskripsi', 'uraian'] },
+  { key: 'level', label: 'Level Dipersyaratkan', alias: ['level kompetensi', 'level yang dipersyaratkan', 'level dipersyaratkan', 'standar level', 'target level', 'level target', 'proficiency level', 'required level', 'level', 'standar'] },
+  { key: 'indikator', label: 'Indikator Perilaku', alias: ['indikator perilaku', 'indikator', 'perilaku kunci', 'key behavior', 'key behaviour'] },
+];
+const ALL_ALIASES = [...JAB_FIELDS, ...KOMP_FIELDS].flatMap((f) => f.alias);
+const norm = (s) => String(s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+let wb = null;          // { sheets: [{ name, headers, rows: [obj] }] }
+let sourceFiles = [];
+
+function detectHeader(aoa) {
+  let best = -1, bestScore = 0;
+  for (let r = 0; r < Math.min(aoa.length, 25); r++) {
+    const score = aoa[r].filter((c) => ALL_ALIASES.includes(norm(c))).length;
+    if (score > bestScore) { best = r; bestScore = score; }
+  }
+  if (best === -1) best = aoa.findIndex((r) => r.some((c) => String(c).trim() !== ''));
+  return best;
+}
+
+async function readFiles(files) {
+  const sheets = [];
+  for (const file of files) {
+    const buf = await file.arrayBuffer();
+    const book = XLSX.read(buf, { type: 'array', cellDates: true });
+    for (const name of book.SheetNames) {
+      const aoa = XLSX.utils.sheet_to_json(book.Sheets[name], { header: 1, defval: '', raw: false, blankrows: false });
+      if (!aoa.length) continue;
+      const h = detectHeader(aoa);
+      if (h < 0) continue;
+      const seen = {};
+      const headers = aoa[h].map((c, i) => {
+        let t = String(c).replace(/\s+/g, ' ').trim() || `Kolom ${i + 1}`;
+        if (seen[t]) t = `${t} (${++seen[t]})`; else seen[t] = 1;
+        return t;
+      });
+      const rows = aoa.slice(h + 1).map((r) => Object.fromEntries(headers.map((hd, i) => [hd, String(r[i] ?? '').trim()])))
+        .filter((o) => Object.values(o).some((v) => v !== ''));
+      sheets.push({ name: files.length > 1 ? `${file.name} › ${name}` : name, headers, rows });
+    }
+  }
+  return { sheets };
+}
+
+function autoMap(headers, fields) {
+  const used = new Set();
+  const map = {};
+  const nh = headers.map((h) => [h, norm(h)]);
+  // 1) cocok persis, sesuai urutan prioritas alias
+  for (const f of fields) {
+    for (const a of f.alias) {
+      const hit = nh.find(([h, n]) => n === a && !used.has(h));
+      if (hit) { map[f.key] = hit[0]; used.add(hit[0]); break; }
+    }
+  }
+  // 2) header mengandung alias (alias panjang dulu agar "level jabatan" tidak tertukar dgn "level")
+  for (const f of fields) {
+    if (map[f.key]) continue;
+    for (const a of f.alias.filter((x) => x.length >= 5)) {
+      const hit = nh.find(([h, n]) => n.includes(a) && !used.has(h));
+      if (hit) { map[f.key] = hit[0]; used.add(hit[0]); break; }
+    }
+  }
+  return map;
+}
+
+function selectedSheets() {
+  return [...document.querySelectorAll('#sheet-list input:checked')].map((i) => wb.sheets[+i.value]);
+}
+function headerUnion() {
+  const set = [];
+  for (const s of selectedSheets()) for (const h of s.headers) if (!set.includes(h)) set.push(h);
+  return set;
+}
+const fmt = () => document.querySelector('input[name=fmt]:checked').value;
+
+function renderMapping() {
+  const headers = headerUnion();
+  const auto = autoMap(headers, [...JAB_FIELDS, ...KOMP_FIELDS]);
+  const sel = (f, cur) => `<div><label>${esc(f.label)}${f.req ? ' <span class="req">*</span>' : ''}</label>
+    <select data-field="${f.key}"><option value="">— tidak ada —</option>${headers.map((h) => `<option ${h === cur ? 'selected' : ''}>${esc(h)}</option>`).join('')}</select></div>`;
+  $('map-jabatan').innerHTML = JAB_FIELDS.map((f) => sel(f, auto[f.key])).join('');
+  $('map-long').innerHTML = KOMP_FIELDS.map((f) => sel(f, auto[f.key])).join('');
+
+  // Saran format: kalau tidak ada kolom nama kompetensi → matriks
+  if (!auto.nama && headers.length > 6) document.querySelector('input[name=fmt][value=matrix]').checked = true;
+
+  const jabCols = new Set(JAB_FIELDS.map((f) => auto[f.key]).filter(Boolean));
+  const rows = selectedSheets().flatMap((s) => s.rows).slice(0, 300);
+  $('matrix-cols').innerHTML = headers.map((h) => {
+    const vals = rows.map((r) => r[h]).filter(Boolean);
+    const looksLevel = vals.length > 0 && vals.filter((v) => /^\s*(level\s*)?\d+(\.\d+)?\s*$/i.test(v)).length / vals.length > 0.6;
+    const checked = !jabCols.has(h) && looksLevel && !/^(no|nomor|urut)$/.test(norm(h));
+    return `<label class="chk"><input type="checkbox" value="${esc(h)}" ${checked ? 'checked' : ''}> ${esc(h)}</label>`;
+  }).join('') || '<span class="muted">Tidak ada kolom</span>';
+
+  $('kamus-sheet').innerHTML = '<option value="">— tidak pakai kamus —</option>' +
+    wb.sheets.map((s, i) => `<option value="${i}" ${/kamus|dictionary|definisi/i.test(s.name) ? 'selected' : ''}>${esc(s.name)}</option>`).join('');
+  toggleFormat();
+}
+
+function toggleFormat() {
+  const m = fmt() === 'matrix';
+  $('map-long-box').classList.toggle('hidden', m);
+  $('map-matrix-box').classList.toggle('hidden', !m);
+  buildPreview();
+}
+
+function currentMap() {
+  const m = {};
+  document.querySelectorAll('#mapping select[data-field]').forEach((s) => { if (s.value) m[s.dataset.field] = s.value; });
+  return m;
+}
+
+// =====================================================================
+// SUSUN DATA JABATAN DARI BARIS EXCEL
+// =====================================================================
+let parsed = null;
+
+function buildJabatan() {
+  const m = currentMap();
+  const ffill = $('ffill').checked;
+  const warnings = [];
+  const list = [];
+  const byKey = new Map();
+  let autoKode = 0;
+  const jabKeys = JAB_FIELDS.map((f) => f.key);
+
+  // Kamus kompetensi (untuk format matriks)
+  let kamus = new Map();
+  if (fmt() === 'matrix' && $('kamus-sheet').value !== '') {
+    const ks = wb.sheets[+$('kamus-sheet').value];
+    const km = autoMap(ks.headers, KOMP_FIELDS);
+    if (km.nama) {
+      for (const r of ks.rows) {
+        const n = r[km.nama]; if (!n) continue;
+        kamus.set(norm(n), { kelompok: r[km.kelompok] || '', kode: r[km.kode] || '', definisi: r[km.definisi] || '', indikator: r[km.indikator] || '' });
+      }
+    } else warnings.push('Sheet kamus tidak punya kolom "Nama Kompetensi" — kamus diabaikan.');
+  }
+  const matrixCols = [...document.querySelectorAll('#matrix-cols input:checked')].map((i) => i.value);
+
+  for (const sheet of selectedSheets()) {
+    if (fmt() === 'matrix' && sheet === wb.sheets[+$('kamus-sheet').value]) continue;
+    let prev = null;
+    for (const r of sheet.rows) {
+      const val = (k) => (m[k] ? String(r[m[k]] ?? '').trim() : '');
+      let j = Object.fromEntries(jabKeys.map((k) => [k, val(k)]));
+      const emptyJab = !j.kode_jabatan && !j.nama_jabatan;
+      if (emptyJab && ffill && prev) j = { ...prev };
+      else if (ffill && prev && (j.kode_jabatan ? j.kode_jabatan === prev.kode_jabatan : j.nama_jabatan === prev.nama_jabatan)) {
+        for (const k of jabKeys) if (!j[k]) j[k] = prev[k];
+      }
+      if (!j.nama_jabatan && !j.kode_jabatan) continue;
+      if (!j.nama_jabatan) j.nama_jabatan = j.kode_jabatan;
+      prev = { ...j };
+
+      const key = j.kode_jabatan || `${j.job_family}|${j.sub_job_family}|${j.nama_jabatan}`;
+      let rec = byKey.get(key);
+      if (!rec) {
+        rec = { ...j, kompetensi: [], sort_order: list.length };
+        if (!rec.kode_jabatan) rec.kode_jabatan = 'JAB-' + String(++autoKode).padStart(4, '0');
+        byKey.set(key, rec);
+        list.push(rec);
+      } else {
+        for (const k of jabKeys) if (!rec[k] && j[k]) rec[k] = j[k];
+      }
+
+      if (fmt() === 'long') {
+        const nama = val('nama');
+        if (nama) rec.kompetensi.push({ kelompok: val('kelompok'), kode: val('kode'), nama, definisi: val('definisi'), level: val('level'), indikator: val('indikator') });
+      } else {
+        for (const c of matrixCols) {
+          const lv = String(r[c] ?? '').trim();
+          if (!lv || lv === '-' || lv === '0') continue;
+          const kd = kamus.get(norm(c)) || {};
+          rec.kompetensi.push({ kelompok: kd.kelompok || '', kode: kd.kode || '', nama: c, definisi: kd.definisi || '', level: lv, indikator: kd.indikator || '' });
+        }
+      }
+    }
+  }
+  if (!m.kode_jabatan) warnings.push('Kolom Kode Jabatan tidak dipetakan — kode dibuat otomatis (JAB-0001, ...).');
+  if (!m.job_family) warnings.push('Kolom Job Family tidak dipetakan — semua jabatan masuk "(Tanpa Job Family)".');
+  if (fmt() === 'long' && !m.nama) warnings.push('Kolom Nama Kompetensi belum dipetakan.');
+  if (fmt() === 'matrix' && matrixCols.length === 0) warnings.push('Belum ada kolom kompetensi yang dipilih.');
+  const noKomp = list.filter((j) => j.kompetensi.length === 0);
+  if (noKomp.length) warnings.push(`${noKomp.length} jabatan tidak memiliki kompetensi (mis. ${noKomp.slice(0, 3).map((j) => esc(j.nama_jabatan)).join(', ')}).`);
+  return { list, warnings };
+}
+
+function buildPreview() {
+  if (!wb) return;
+  parsed = buildJabatan();
+  const { list, warnings } = parsed;
+  const jf = new Set(list.map((j) => j.job_family));
+  const sjf = new Set(list.map((j) => j.job_family + '|' + j.sub_job_family));
+  const nk = list.reduce((a, j) => a + j.kompetensi.length, 0);
+  $('parse-stats').innerHTML = [
+    [list.length, 'Jabatan'], [jf.size, 'Job Family'], [sjf.size, 'Sub Job Family'], [nk, 'Baris Kompetensi'],
+  ].map(([n, l]) => `<div class="stat"><b>${n.toLocaleString('id-ID')}</b><span>${l}</span></div>`).join('');
+  if (warnings.length) showMsg('parse-msg', 'warn', warnings.map((w) => '• ' + w).join('<br>')); else hideMsg('parse-msg');
+  const sample = list.slice(0, 3);
+  $('parse-preview').innerHTML = sample.length ? `<div class="section-title">Contoh hasil baca (3 jabatan pertama)</div>
+    <table class="preview-table"><thead><tr><th>Kode</th><th>Jabatan</th><th>Job Family</th><th>Sub Job Family</th><th>Kompetensi (level)</th></tr></thead><tbody>
+    ${sample.map((j) => `<tr><td>${esc(j.kode_jabatan)}</td><td>${esc(j.nama_jabatan)}</td><td>${esc(j.job_family)}</td><td>${esc(j.sub_job_family)}</td>
+    <td>${j.kompetensi.slice(0, 6).map((k) => `${esc(k.nama)}${k.level ? ' (' + esc(k.level) + ')' : ''}`).join(', ')}${j.kompetensi.length > 6 ? ` … +${j.kompetensi.length - 6}` : ''}</td></tr>`).join('')}
+    </tbody></table>` : '';
+  $('btn-upload').disabled = list.length === 0;
+}
+
+$('file-input').addEventListener('change', async (e) => {
+  const files = [...e.target.files];
+  if (!files.length) return;
+  hideMsg('upload-msg');
+  showMsg('upload-msg', 'ok', 'Membaca file...');
+  try {
+    wb = await readFiles(files);
+    sourceFiles = files.map((f) => f.name);
+    if (!wb.sheets.length) throw new Error('Tidak ada sheet berisi data.');
+    if (!$('batch-name').value) $('batch-name').value = files[0].name.replace(/\.[^.]+$/, '');
+    // Default: centang sheet yang punya kolom jabatan; sheet kamus tidak dicentang
+    $('sheet-list').innerHTML = wb.sheets.map((s, i) => {
+      const am = autoMap(s.headers, JAB_FIELDS);
+      const on = (am.nama_jabatan || am.kode_jabatan) && !/kamus|petunjuk|dictionary/i.test(s.name);
+      return `<label class="chk"><input type="checkbox" value="${i}" ${on ? 'checked' : ''}> ${esc(s.name)} <span class="muted">(${s.rows.length} baris)</span></label>`;
+    }).join('');
+    if (!document.querySelector('#sheet-list input:checked')) document.querySelector('#sheet-list input').checked = true;
+    $('mapping').classList.remove('hidden');
+    hideMsg('upload-msg');
+    renderMapping();
+  } catch (err) {
+    showMsg('upload-msg', 'err', 'Gagal membaca Excel: ' + esc(err.message));
+  }
+});
+$('sheet-list').addEventListener('change', renderMapping);
+document.querySelectorAll('input[name=fmt]').forEach((r) => r.addEventListener('change', toggleFormat));
+$('mapping').addEventListener('change', (e) => {
+  if (e.target.closest('#sheet-list') || e.target.name === 'fmt') return;
+  buildPreview();
+});
+
+function resetUpload() {
+  wb = null; parsed = null;
+  $('file-input').value = '';
+  $('batch-name').value = '';
+  $('mapping').classList.add('hidden');
+  $('upload-progress').classList.add('hidden');
+  hideMsg('upload-msg');
+}
+
+// Kirim bertahap (chunk ≤ ~700 KB) agar aman dari batas ukuran request server
+async function doUpload() {
+  const name = $('batch-name').value.trim();
+  if (!name) { showMsg('upload-msg', 'err', 'Nama batch wajib diisi.'); return; }
+  if (!parsed || !parsed.list.length) return;
+  const btn = $('btn-upload');
+  btn.disabled = true;
+  const bar = $('upload-progress');
+  bar.classList.remove('hidden');
+  let batchId = null;
+  try {
+    ({ batch_id: batchId } = await api('/batches', { method: 'POST', body: JSON.stringify({ batch_name: name, source_file: sourceFiles.join(', ') }) }));
+    const chunks = [];
+    let cur = [], size = 0;
+    for (const j of parsed.list) {
+      const s = JSON.stringify(j).length;
+      if (cur.length && (size + s > 700000 || cur.length >= 300)) { chunks.push(cur); cur = []; size = 0; }
+      cur.push(j); size += s;
+    }
+    if (cur.length) chunks.push(cur);
+    let done = 0, dup = 0;
+    for (const c of chunks) {
+      const r = await api(`/batches/${batchId}/jabatan`, { method: 'POST', body: JSON.stringify({ jabatan: c }) });
+      dup += r.jabatan_duplikat;
+      done += c.length;
+      bar.firstElementChild.style.width = Math.round((done / parsed.list.length) * 100) + '%';
+      showMsg('upload-msg', 'ok', `Mengunggah... ${done.toLocaleString('id-ID')} / ${parsed.list.length.toLocaleString('id-ID')} jabatan`);
+    }
+    await api(`/batches/${batchId}/finalize`, { method: 'POST' });
+    resetUpload();
+    showMsg('upload-msg', 'ok', `Berhasil menyimpan ${(done - dup).toLocaleString('id-ID')} jabatan.` + (dup ? ` ${dup} kode jabatan duplikat dilewati.` : ''));
+    await loadBatches();
+    selectBatch(batchId);
+  } catch (err) {
+    showMsg('upload-msg', 'err', 'Upload gagal: ' + esc(err.message));
+    if (batchId) api(`/batches/${batchId}`, { method: 'DELETE' }).catch(() => {});
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function downloadTemplate() {
+  const rows = [
+    ['Kode Jabatan', 'Nama Jabatan', 'Job Family', 'Sub Job Family', 'Unit Kerja', 'Tingkat Jabatan', 'Kelompok Kompetensi', 'Kode Kompetensi', 'Nama Kompetensi', 'Definisi', 'Level', 'Indikator Perilaku'],
+    ['JAB-0001', 'Manager Rekrutmen', 'Human Capital', 'Talent Acquisition', 'Divisi Human Capital', 'Manager', 'Kompetensi Inti', 'KI-01', 'Integritas', 'Bertindak konsisten sesuai nilai dan etika perusahaan.', '4', 'Menjadi teladan kejujuran\nMenolak gratifikasi'],
+    ['', '', '', '', '', '', 'Kompetensi Manajerial', 'KM-01', 'Kepemimpinan', 'Mengarahkan dan menggerakkan tim untuk mencapai tujuan.', '4', ''],
+    ['', '', '', '', '', '', 'Kompetensi Teknis', 'KT-01', 'Rekrutmen & Seleksi', 'Merancang dan melaksanakan proses rekrutmen dan seleksi.', '4', ''],
+    ['JAB-0002', 'Staf Rekrutmen', 'Human Capital', 'Talent Acquisition', 'Divisi Human Capital', 'Staf', 'Kompetensi Inti', 'KI-01', 'Integritas', 'Bertindak konsisten sesuai nilai dan etika perusahaan.', '2', ''],
+    ['', '', '', '', '', '', 'Kompetensi Teknis', 'KT-01', 'Rekrutmen & Seleksi', 'Merancang dan melaksanakan proses rekrutmen dan seleksi.', '2', ''],
+  ];
+  const help = [
+    ['Petunjuk'],
+    ['Satu baris = satu kompetensi untuk satu jabatan.'],
+    ['Kolom jabatan (Kode s/d Tingkat) boleh dikosongkan / di-merge pada baris lanjutan jabatan yang sama.'],
+    ['Kolom wajib: Kode Jabatan, Nama Jabatan, Nama Kompetensi. Kolom lain opsional.'],
+    ['Indikator perilaku boleh lebih dari satu, pisahkan dengan baris baru (Alt+Enter) atau titik koma.'],
+    ['Nama kolom tidak harus sama persis — pemetaan kolom bisa diatur saat upload.'],
+  ];
+  const book = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [12, 26, 18, 20, 22, 14, 22, 14, 24, 50, 8, 40].map((w) => ({ wch: w }));
+  XLSX.utils.book_append_sheet(book, ws, 'Profil Kompetensi');
+  XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet(help), 'Petunjuk');
+  XLSX.writeFile(book, 'Template Profil Kompetensi Jabatan.xlsx');
+}
+
+// =====================================================================
+// BATCH LIST & DETAIL
+// =====================================================================
+let batches = [];
+let currentBatch = null;
+let tree = [];
+
+async function loadBatches() {
+  try {
+    ({ batches } = await api('/batches'));
+    $('batch-body').innerHTML = batches.length ? batches.map((b) => `
+      <tr class="clickable ${currentBatch && currentBatch.id === b.id ? 'sel' : ''}" onclick="selectBatch(${b.id})">
+        <td><b>${esc(b.batch_name)}</b></td>
+        <td class="muted">${esc(b.source_file || '-')}</td>
+        <td>${Number(b.jabatan_count).toLocaleString('id-ID')}</td>
+        <td>${b.job_family_count}</td>
+        <td>${b.status === 'ready' ? '<span class="badge b-ok">Siap</span>' : '<span class="badge b-warn">Upload belum selesai</span>'}</td>
+        <td class="muted">${new Date(b.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}<br>${esc(b.uploaded_by || '')}</td>
+        <td>${isApprover || b.status !== 'ready' ? `<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteBatch(${b.id})">Hapus</button>` : ''}</td>
+      </tr>`).join('') : '<tr><td colspan="7" class="muted">Belum ada batch. Upload Excel di atas.</td></tr>';
+  } catch (e) {
+    $('batch-body').innerHTML = `<tr><td colspan="7" class="muted">Gagal memuat: ${esc(e.message)}</td></tr>`;
+  }
+}
+
+async function deleteBatch(id) {
+  const b = batches.find((x) => x.id === id);
+  if (!confirm(`Hapus batch "${b?.batch_name}" beserta seluruh datanya?`)) return;
+  try {
+    await api('/batches/' + id, { method: 'DELETE' });
+    if (currentBatch?.id === id) { currentBatch = null; $('detail-card').classList.add('hidden'); }
+    loadBatches();
+  } catch (e) { alert(e.message); }
+}
+
+async function selectBatch(id) {
+  currentBatch = batches.find((b) => b.id === id) || { id };
+  loadBatches();
+  $('detail-card').classList.remove('hidden');
+  $('detail-title').textContent = currentBatch.batch_name || 'Batch';
+  $('tree').innerHTML = '<div class="muted">Memuat...</div>';
+  document.querySelectorAll('[data-zip]').forEach((a) => { a.href = dl(`/batches/${id}/zip`, { mode: a.dataset.zip }); });
+  try {
+    const [{ tree: t }, { settings }] = await Promise.all([api(`/batches/${id}/tree`), api(`/batches/${id}/settings`)]);
+    tree = t;
+    const nJab = tree.reduce((a, f) => a + f.subs.reduce((b, s) => b + s.jabatan.length, 0), 0);
+    const nSub = tree.reduce((a, f) => a + f.subs.length, 0);
+    $('detail-stats').innerHTML = [[nJab, 'Jabatan'], [tree.length, 'Job Family'], [nSub, 'Sub Job Family']]
+      .map(([n, l]) => `<div class="stat"><b>${n.toLocaleString('id-ID')}</b><span>${l}</span></div>`).join('');
+    fillSettings(settings);
+    const first = tree[0]?.subs[0]?.jabatan[0];
+    $('settings-preview').href = first ? dl(`/batches/${id}/pdf/jabatan/${encodeURIComponent(first.kode_jabatan)}`, { inline: 1 }) : '#';
+    renderTree();
+    $('detail-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    $('tree').innerHTML = `<div class="muted">Gagal memuat: ${esc(e.message)}</div>`;
+  }
+}
+
+document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('active', x === t));
+  document.querySelectorAll('[data-pane]').forEach((p) => p.classList.toggle('hidden', p.dataset.pane !== t.dataset.tab));
+}));
+
+// ---------------- Tree ----------------
+const famLabel = (s) => s || '(Tanpa Job Family)';
+const subLabel = (s) => s || '(Tanpa Sub Job Family)';
+
+function jabRow(j) {
+  const b = currentBatch.id;
+  const p = `/batches/${b}/pdf/jabatan/${encodeURIComponent(j.kode_jabatan)}`;
+  return `<div class="jab"><span class="code">${esc(j.kode_jabatan)}</span><span class="name">${esc(j.nama_jabatan)}
+    <span class="muted">· ${j.kompetensi_count} kompetensi</span></span>
+    <a class="btn btn-ghost btn-sm" target="_blank" href="${dl(p, { inline: 1 })}">Lihat</a>
+    <a class="btn btn-ghost btn-sm" href="${dl(p)}">PDF</a></div>`;
+}
+
+function renderTree() {
+  const q = norm($('search').value);
+  const b = currentBatch.id;
+  if (q) {
+    const hits = [];
+    for (const f of tree) for (const s of f.subs) for (const j of s.jabatan) {
+      if (norm(j.nama_jabatan + ' ' + j.kode_jabatan).includes(q)) hits.push({ f, s, j });
+    }
+    $('tree').innerHTML = hits.length ? `<div class="muted" style="margin-bottom:6px">${hits.length} jabatan ditemukan${hits.length > 300 ? ' (menampilkan 300 pertama)' : ''}</div>` +
+      `<div class="fam">${hits.slice(0, 300).map(({ f, s, j }) => jabRow(j).replace('<span class="name">', `<span class="name"><span class="muted">${esc(famLabel(f.jobFamily))} › ${esc(subLabel(s.subJobFamily))}</span><br>`)).join('')}</div>` :
+      '<div class="muted">Tidak ada jabatan yang cocok.</div>';
+    return;
+  }
+  $('tree').innerHTML = tree.map((f, fi) => {
+    const n = f.subs.reduce((a, s) => a + s.jabatan.length, 0);
+    return `<div class="fam" data-fi="${fi}">
+      <div class="fam-head" onclick="toggleFam(${fi})"><span class="caret"></span><span class="name">${esc(famLabel(f.jobFamily))}</span>
+        <span class="count">${f.subs.length} sub job family · ${n} jabatan</span>
+        <a class="btn btn-primary btn-sm" onclick="event.stopPropagation()" href="${dl(`/batches/${b}/pdf/kelompok`, { job_family: f.jobFamily })}">PDF Job Family</a>
+        <a class="btn btn-ghost btn-sm" onclick="event.stopPropagation()" href="${dl(`/batches/${b}/zip`, { mode: 'jabatan', job_family: f.jobFamily })}" title="ZIP berisi PDF per jabatan untuk job family ini">ZIP per Jabatan</a>
+      </div><div class="fam-body"></div></div>`;
+  }).join('') || '<div class="muted">Tidak ada jabatan.</div>';
+}
+
+function toggleFam(fi) {
+  const el = document.querySelector(`.fam[data-fi="${fi}"]`);
+  const body = el.querySelector('.fam-body');
+  if (el.classList.toggle('open')) {
+    const f = tree[fi];
+    const b = currentBatch.id;
+    body.innerHTML = f.subs.map((s, si) => `<div class="sub" data-si="${si}">
+      <div class="sub-head" onclick="toggleSub(${fi},${si})"><span class="caret"></span><span class="name">${esc(subLabel(s.subJobFamily))}</span>
+        <span class="count muted">${s.jabatan.length} jabatan</span>
+        <a class="btn btn-ghost btn-sm" onclick="event.stopPropagation()" href="${dl(`/batches/${b}/pdf/kelompok`, { job_family: f.jobFamily, sub_job_family: s.subJobFamily })}">PDF Sub Job Family</a>
+      </div><div class="sub-body"></div></div>`).join('');
+  } else body.innerHTML = '';
+}
+
+function toggleSub(fi, si) {
+  const el = document.querySelector(`.fam[data-fi="${fi}"] .sub[data-si="${si}"]`);
+  const body = el.querySelector('.sub-body');
+  body.innerHTML = el.classList.toggle('open') ? tree[fi].subs[si].jabatan.map(jabRow).join('') : '';
+}
+
+let searchTimer;
+$('search').addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(renderTree, 200); });
+
+// ---------------- Settings ----------------
+const S_KEYS = ['judul', 'nama_perusahaan', 'lampiran_label', 'nomor_sk', 'tanggal_sk', 'perihal', 'tampilkan_kop', 'tampilkan_ttd', 'tempat_ttd', 'tanggal_ttd', 'jabatan_ttd', 'nama_ttd'];
+function fillSettings(s) {
+  hideMsg('settings-msg');
+  for (const k of S_KEYS) {
+    const el = $('s-' + k);
+    if (el.type === 'checkbox') el.checked = !!s[k]; else el.value = s[k] ?? '';
+    el.disabled = !isApprover;
+  }
+}
+async function saveSettings() {
+  const body = {};
+  for (const k of S_KEYS) { const el = $('s-' + k); body[k] = el.type === 'checkbox' ? el.checked : el.value; }
+  try {
+    await api(`/batches/${currentBatch.id}/settings`, { method: 'PUT', body: JSON.stringify(body) });
+    showMsg('settings-msg', 'ok', 'Pengaturan tersimpan. Export PDF berikutnya memakai pengaturan ini.');
+  } catch (e) { showMsg('settings-msg', 'err', esc(e.message)); }
+}
+
+loadBatches();
+</script>
+</body></html>
